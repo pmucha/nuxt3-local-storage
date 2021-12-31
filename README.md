@@ -1,15 +1,14 @@
-# Nuxt3 `useStore()` with `localStorage`
+# Nuxt3 `useState()` with `localStorage`
 
-[Nuxt3](https://v3.nuxtjs.org/) developers decided to stop using Vuex for the state management.
-Now we need to deal with their own composable called [useState](https://v3.nuxtjs.org/docs/usage/state).
-It claims to be SSR friendly, but it doesn't utilize `localStorage`. A composable introduced
-in this repo creates a wrapper around `useStore` which is able to save the data to the browser's local storage.
+`useLocalState()` is a composable which wraps up the default [Nuxt3](https://v3.nuxtjs.org/)
+[useState()](https://v3.nuxtjs.org/docs/usage/state) and makes it able for the state to be
+saved in the browser's `localStorage`.
 
 Here is the list of files created and modified in this tutorial:
 ```
 src/
   composables/
-    use-local-store.ts
+    use-local-state.ts
   pages/
     index.vue
     about.vue
@@ -25,20 +24,35 @@ at your browser's console and inspect `localStorage`.
 
 ## Code
 
-It's a [composable](https://v3.nuxtjs.org/docs/directory-structure/composables) so Nuxt will import it for you.
+`useLocalState()` is a [composable](https://v3.nuxtjs.org/docs/directory-structure/composables) so Nuxt will import it for you automatically. The API is exactly the same as in `useState()`.
 
 In the `<script setup lang="ts">` write the following:
 
 ```ts
-const state = useLocalStore<string>("name", "Default name value", true)
+const state = useLocalState<string>("name", () => "Default name value")
 // or just
-const state = useLocalStore<string>("name")
+const state = useLocalState<string>("name")
+// then
+state.value = "New value"
 ```
 
-Now you can use `state.get()`, `state.set("Some other name")` and more. If you do the same in some other page, the state should be preserved. Since the state is saved to `localStorage` by default, it will be
-there when you reload the page. All the data is kept ther as `JSON`.
+### Other abilities
 
-Check out the `/composables/use-local-store.ts` file for documentation. IntelliSense will also help you.
+You can switch between `useLocalState()` and `useState()` and the state will remain. However the `localStorage` might become outdated. To keep it up to date use:
+```ts
+// Remember the .value used in Vue 3
+useLocalState("yourKeyName").value = useState("yourKeyName).value
+```
+
+If you only want to use `useState()` and occasionally save it to `localStorage`, use the line above.
+
+To clear the `localStorage` and remove the state data use:
+
+```ts
+useLocalState("yourKeyName").value = undefined
+```
+
+Check out the `/composables/use-local-state.ts` file for documentation. IntelliSense will also help you.
 
 ## License
 
